@@ -44,10 +44,14 @@ def get_activities(
     
     if difficulty:
         # Include activities with the specified difficulty OR activities with no difficulty set
-        query["$or"] = [
+        difficulty_condition = {"$or": [
             {"difficulty": difficulty},
             {"difficulty": {"$exists": False}}
-        ]
+        ]}
+        if "$and" in query:
+            query["$and"].append(difficulty_condition)
+        else:
+            query["$and"] = [difficulty_condition]
     
     # Query the database
     activities = {}
