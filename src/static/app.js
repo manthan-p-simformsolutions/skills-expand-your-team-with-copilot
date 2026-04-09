@@ -34,6 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
     technology: { label: "Technology", color: "#e8eaf6", textColor: "#3949ab" },
   };
 
+  const SCHOOL_NAME = "Mergington High School";
+
   // State for activities and filters
   let allActivities = {};
   let currentFilter = "all";
@@ -483,7 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderShareButtons(name, formattedSchedule) {
     const shareUrl = getShareUrl(name);
     const shareText = encodeURIComponent(
-      `Check out this activity at Mergington High School: ${name} (${formattedSchedule})`
+      `Check out this activity at ${SCHOOL_NAME}: ${name} (${formattedSchedule})`
     );
     const encodedUrl = encodeURIComponent(shareUrl);
 
@@ -614,6 +616,11 @@ document.addEventListener("DOMContentLoaded", () => {
           copyButton.textContent = "✅";
           setTimeout(() => {
             copyButton.textContent = original;
+          }, 1500);
+        }).catch(() => {
+          copyButton.textContent = "❌";
+          setTimeout(() => {
+            copyButton.textContent = "🔗";
           }, 1500);
         });
       });
