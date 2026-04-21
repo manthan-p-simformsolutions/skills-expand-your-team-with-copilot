@@ -47,6 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
     technology: { label: "Technology", color: "#e8eaf6", textColor: "#3949ab" },
   };
 
+  const SCHOOL_NAME = "Mergington High School";
+
   // State for activities and filters
   let allActivities = {};
   let currentFilter = "all";
@@ -485,6 +487,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Function to build a shareable URL for an activity
+  function getShareUrl(activityName) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("activity", activityName);
+    return url.toString();
+  }
+
+  // Function to render social share buttons for an activity
+  function renderShareButtons(name, formattedSchedule) {
+    const shareUrl = getShareUrl(name);
+    const shareText = encodeURIComponent(
+      `Check out this activity at ${SCHOOL_NAME}: ${name} (${formattedSchedule})`
+    );
+    const encodedUrl = encodeURIComponent(shareUrl);
+
+    return `
+      <div class="share-buttons">
+        <span class="share-label">Share:</span>
+        <a class="share-button share-twitter" href="https://twitter.com/intent/tweet?text=${shareText}&url=${encodedUrl}" target="_blank" rel="noopener noreferrer" aria-label="Share on Twitter/X" title="Share on Twitter/X">𝕏</a>
+        <a class="share-button share-whatsapp" href="https://api.whatsapp.com/send?text=${shareText}%20${encodedUrl}" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp" title="Share on WhatsApp">💬</a>
+        <a class="share-button share-email" href="mailto:?subject=${encodeURIComponent("Check out: " + name)}&body=${shareText}%20${encodedUrl}" aria-label="Share via Email" title="Share via Email">✉️</a>
+        <button class="share-button share-copy" data-share-url="${shareUrl}" aria-label="Copy link" title="Copy link">🔗</button>
+      </div>
+    `;
+  }
+
   // Function to render a single activity card
   function renderActivityCard(name, details) {
     const activityCard = document.createElement("div");
@@ -565,6 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .join("")}
         </ul>
       </div>
+      ${renderShareButtons(name, formattedSchedule)}
       <div class="activity-card-actions">
         ${
           currentUser
@@ -589,6 +618,26 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteButtons.forEach((button) => {
       button.addEventListener("click", handleUnregister);
     });
+
+    // Add click handler for copy-link share button
+    const copyButton = activityCard.querySelector(".share-copy");
+    if (copyButton) {
+      copyButton.addEventListener("click", () => {
+        const url = copyButton.dataset.shareUrl;
+        navigator.clipboard.writeText(url).then(() => {
+          const original = copyButton.textContent;
+          copyButton.textContent = "✅";
+          setTimeout(() => {
+            copyButton.textContent = original;
+          }, 1500);
+        }).catch(() => {
+          copyButton.textContent = "❌";
+          setTimeout(() => {
+            copyButton.textContent = "🔗";
+          }, 1500);
+        });
+      });
+    }
 
     // Add click handler for register button (only when authenticated)
     if (currentUser) {
